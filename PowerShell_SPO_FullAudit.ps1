@@ -261,9 +261,9 @@ Function Generate-PnPSitePermissionRpt()
 }
     
 #region ***Parameters***
-$SiteURL="https://caplinkorg.sharepoint.com/sites/Finance"
+$SiteURL="https://organization.sharepoint.com/sites/SiteName"
 #$ListofSPOSites = Get-PnPTenantSite | Where -Property Template -NotIn ("SRCHCEN#0","REDIRECTSITE#0", "SPSMSITEHOST#0", "APPCATALOG#0", "POINTPUBLISHINGHUB#0", "EDISC#0", "STS#-1")
-$ReportFile="C:\users\sfeeney\ListPermission_CapLink_Finance.csv"
+$ReportFile="C:\users\sfeeney\ListPermission_org_site.csv"
 #endregion
   
 #Call the function to generate permission report
