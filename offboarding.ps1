@@ -1,4 +1,4 @@
-﻿#this is still a bit of a mess. work in progress - use at your own risk; teams me with questions - Mark Dolesh
+﻿#this is still a bit of a mess. work in progress - use at your own risk; teams me with questions
 #to do:
 # - (DONE) fix OU move to disabled - need to strip prefix from output during parsing - this is currently commented out
 # - (DONE) prepend disabled <date> - to description in local AD
@@ -23,14 +23,13 @@
 
 Clear-Host
 
-#get creds - use the support@entnet.onmicrosoft.com account
-$credential = Get-Credential
+#get creds - user admin acount
 #variables that you need to set
 $offboardee = $(Write-Host "Who are you offboarding? (username): " -ForegroundColor green -NoNewLine; Read-Host) # Who are you offboarding?
 
 $supervisor = $(Write-Host "Who is their supervisor? (username): " -ForegroundColor green -NoNewLine; Read-Host) # who are you delegating access to?
-$orgName = "entnet" # orgname prefixes .onmicrosoft.com
-$outofoffice ="For questions regarding ENT PAC, please contact Chris Stewart at cstewart@entnet.org"
+$orgName = "organization" # orgname prefixes .onmicrosoft.com
+$outofoffice ="For questions, please contact xxxxxx"
 $outfile = 'C:\scripts\offboarding\'+$offboardee+'_offboarding_report.txt'
 
 
@@ -64,7 +63,7 @@ Connect-ExchangeOnline -Credential $credential -ShowProgress $true
 Disable-ADAccount -Identity $offboardee
 
 #change password
-Set-ADAccountPassword -Identity $offboardee -NewPassword (ConvertTo-SecureString -AsPlainText "MarkDolesh1!" -Force)
+Set-ADAccountPassword -Identity $offboardee -NewPassword (ConvertTo-SecureString -AsPlainText "TempPass3217!" -Force)
 
 #update user description in AD to include disabled date
 $current_description = Get-AdUser -Identity $offboardee -Properties Description | Select-Object -ExpandProperty Description
@@ -89,7 +88,7 @@ if ($null -ne $ADgroups){
 Set-ADUser $offboardee -Add @{msExchHideFromAddressLists="TRUE"}
 
 #Move user to disabled users group-
-Get-ADUser -Identity $offboardee | Move-ADObject -TargetPath "OU=Disabled - move after 30 days,OU=AAOUSERS,DC=entnet,DC=org"
+Get-ADUser -Identity $offboardee | Move-ADObject -TargetPath "OU=Disabled - move after 30 days,OU=AAOUSERS,DC=organization,DC=org"
 
 
 #---------------- LOCAL AD DONE #
@@ -105,7 +104,7 @@ Start-ADSyncSyncCycle -PolicyType Delta
 Do {
     "Waiting on AzureAD Sync to complete..."
     Start-Sleep -s 5
-    $msoluser = (Get-AzureADUser -ObjectId $offboardee'@entnet.org').AccountEnabled
+    $msoluser = (Get-AzureADUser -ObjectId $offboardee'@organization.org').AccountEnabled
    } 
 While ($msoluser -eq $true)
 
@@ -113,9 +112,9 @@ While ($msoluser -eq $true)
 # Export shared mailbox membership
 
 "Shared Mailbox Membership for: "+$offboardee | Out-File $outfile -Append
-#Get-Mailbox -RecipientTypeDetails SharedMailbox -ResultSize:Unlimited | Get-MailboxPermission |Select-Object Identity,User,AccessRights | Where-Object {($_.user -like $offboardee+'@entnet.org')} | Out-File $outfile -Append
+#Get-Mailbox -RecipientTypeDetails SharedMailbox -ResultSize:Unlimited | Get-MailboxPermission |Select-Object Identity,User,AccessRights | Where-Object {($_.user -like $offboardee+'@organization.org')} | Out-File $outfile -Append
 
-$shared_mb_membership = Get-Mailbox -RecipientTypeDetails SharedMailbox -ResultSize:Unlimited | Get-MailboxPermission |Select-Object Identity,User,AccessRights | Where-Object {($_.user -like $offboardee+'@entnet.org')}
+$shared_mb_membership = Get-Mailbox -RecipientTypeDetails SharedMailbox -ResultSize:Unlimited | Get-MailboxPermission |Select-Object Identity,User,AccessRights | Where-Object {($_.user -like $offboardee+'@organization.org')}
 if ($null -ne $shared_mb_membership){
 	$shared_mb_membership | Out-File $outfile -Append
 }
@@ -126,7 +125,7 @@ else {
 
 # export 365 group membership
 "365 Group Membership for: "+$offboardee | Out-File $outfile -Append
-$365_membership = get-azureadusermembership -ObjectId $offboardee'@entnet.org' | Select-Object DisplayName
+$365_membership = get-azureadusermembership -ObjectId $offboardee'@org.org' | Select-Object DisplayName
 if ($null -ne $365_membership){
 	$365_membership | Out-File $outfile -Append
 }
@@ -136,10 +135,10 @@ else {
 
 
 # Get info for departing user
-$upn        = $offboardee+'@entnet.org'
+$upn        = $offboardee+'@organization.org'
 
 #generate onedrive link and delegate permissions to supervisor
-Set-SPOUser -Site https://$orgName-my.sharepoint.com/personal/$offboardee'_entnet_org' -LoginName $supervisor'@entnet.org' -IsSiteCollectionAdmin $True -ErrorAction SilentlyContinue
+Set-SPOUser -Site https://$orgName-my.sharepoint.com/personal/$offboardee'_organization_org' -LoginName $supervisor'@organization.org' -IsSiteCollectionAdmin $True -ErrorAction SilentlyContinue
 
 
 #disable activesync, owa, etc
@@ -150,7 +149,7 @@ Set-CASMailbox -id $offboardee –OWAforDevicesEnabled $false
 Set-Mailbox $upn -Type Shared
 
 #delegate mailbox access
-Add-MailboxPermission -Identity $upn -User $supervisor'@entnet.org' -AccessRights Full -InheritanceType All -AutoMapping $true
+Add-MailboxPermission -Identity $upn -User $supervisor'@organization.org' -AccessRights Full -InheritanceType All -AutoMapping $true
 
 #set auto reply
 Set-MailboxAutoReplyConfiguration -Identity $upn -AutoReplyState Enabled -InternalMessage $outofoffice -ExternalMessage $outofoffice
