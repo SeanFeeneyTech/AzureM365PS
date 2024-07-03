@@ -26,7 +26,7 @@ $groups = Get-AzureADMSGroup -All $true
 $groupCount = 1
 $totalGroups = $groups.Count
 
-$memberDetailsCSV = "CapLink_AZGroupDetails.csv"
+$memberDetailsCSV = "_AZGroupDetails.csv"
 
 # Process each group
 foreach ($group in $groups) {
