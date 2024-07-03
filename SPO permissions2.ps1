@@ -1,4 +1,4 @@
-﻿#connect-pnponline -Url "https://edmarket.sharepoint.com/sites/Management/" -Interactive
+﻿#connect-pnponline -Url "https://org.sharepoint.com/sites/Management/" -Interactive
 
 #Function to Get Permissions Applied on a particular Object, such as: Web, List or Folder
 Function Get-PnPPermissions([Microsoft.SharePoint.Client.SecurableObject]$Object)
@@ -179,7 +179,7 @@ Function Generate-PnPSitePermissionRpt()
             #Get all lists from the web  
             ForEach($List in $Lists)
             {
-                #Exclude System Lists
+                #******************************Exclude System Lists
                 If($List.Hidden -eq $False -and $ExcludedLists -notcontains $List.Title -and $List.Title -contains "Management General")
                 {
                     $Counter++
@@ -263,8 +263,8 @@ Function Generate-PnPSitePermissionRpt()
 }
     
 #region ***Parameters***
-$SiteURL="https://caplinkorg.sharepoint.com/sites/"
-$ReportFile="C:\users\sfeeney\ListPermission_CapLink.csv"
+$SiteURL="https://organization.sharepoint.com/sites/"
+$ReportFile="C:\users\sfeeney\ListPermission_org.csv"
 #endregion
   
 #Call the function to generate permission report
