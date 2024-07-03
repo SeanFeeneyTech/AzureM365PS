@@ -8,7 +8,7 @@ user3
 $usernames = $text -split "`n" | ForEach-Object { $_.Trim() }
 
 # Output CSV file path
-$outputCsvPath = "KINDfolderoutputFileNew.csv"
+$outputCsvPath = "FolderoutputFileNew.csv"
 
 # Initialize an array to store the results
 $results = @()
