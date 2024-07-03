@@ -1,26 +1,7 @@
 ﻿$text = @"
-cportillo
-ylicht
-lleal
-arodriguez
-rguerra
-modom
-npalomino
-pkonings
-shasan
-glynch
-MGallardo
-sgaly
-mhowe
-jnazario
-mmyint
-morizondo
-rmartin
-ngiron
-jalvarado
-jbrown
-ncruz-cruz
-kgant
+user1
+user2
+user3
 "@
 
 # Split the text into lines and trim whitespace
